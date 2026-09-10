@@ -4,6 +4,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Vehicles from './pages/Vehicles';
+import VehicleForm from './pages/VehicleForm';
 
 export default function App() {
   return (
@@ -17,6 +19,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vehicles"
+            element={
+              <ProtectedRoute>
+                <Vehicles />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vehicles/new"
+            element={
+              <ProtectedRoute>
+                <VehicleForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vehicles/:id/edit"
+            element={
+              <ProtectedRoute>
+                <VehicleForm />
               </ProtectedRoute>
             }
           />

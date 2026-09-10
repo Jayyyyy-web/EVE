@@ -1,7 +1,27 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getVehicles } from '../api/vehicles';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const [vehicleCount, setVehicleCount] = useState(null);
+  const [latest, setLatest] = useState(null);
+
+  useEffect(() => {
+    getVehicles()
+      .then((data) => {
+        const mine = data.filter((v) => String(v.owner?._id || v.owner) === user.id);
+        setVehicleCount(mine.length);
+        if (mine.length > 0) {
+          const sorted = [...mine].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+          setLatest(sorted[0]);
+        }
+      })
+      .catch(() => setVehicleCount(0));
+  }, [user.id]);
 
   return (
     <div className="app-shell">
@@ -18,20 +38,17 @@ export default function Dashboard() {
             Signed in{user?.role === 'admin' ? ' · Admin' : ''}
           </p>
           <h1>Welcome back, {user?.username}.</h1>
-          <p>
-            This is your starting point. Wire up your vehicle data here and
-            it'll show up in the summary below.
-          </p>
+          <p>Here's a quick look at your garage.</p>
         </div>
 
         <div className="dash-grid">
-          <div className="dash-stat">
-            <div className="num">0</div>
+          <Link to="/vehicles" className="dash-stat linked">
+            <div className="num">{vehicleCount === null ? '…' : vehicleCount}</div>
             <div className="label">Saved vehicles</div>
-          </div>
+          </Link>
           <div className="dash-stat">
-            <div className="num">—</div>
-            <div className="label">Last activity</div>
+            <div className="num">{latest ? latest.name : '—'}</div>
+            <div className="label">Last updated</div>
           </div>
           <div className="dash-stat">
             <div className="num">{user?.username}</div>
