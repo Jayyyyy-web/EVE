@@ -75,7 +75,9 @@ export default function Vehicles() {
                 <div className="vehicle-card-top">
                   <span className="swatch" style={{ background: v.color || '#888' }} />
                   <div>
-                    <h3>{v.name}</h3>
+                    <Link to={`/vehicles/${v._id}`} className="card-title-link">
+                      <h3>{v.name}</h3>
+                    </Link>
                     <p className="muted-line">{v.model}</p>
                   </div>
                 </div>

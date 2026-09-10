@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
+
+const VehicleViewer3D = lazy(() => import('../components/VehicleViewer3D'));
 
 const emptyForm = {
   name: '',
@@ -102,7 +104,7 @@ export default function VehicleForm() {
         </button>
       </div>
 
-      <div className="dash-body narrow">
+      <div className="dash-body form-page">
         <Link to="/vehicles" className="back-link">
           ← Back to vehicles
         </Link>
@@ -113,6 +115,20 @@ export default function VehicleForm() {
         {loading ? (
           <p className="muted-line">Loading…</p>
         ) : (
+          <div className="form-split">
+            <div className="preview-pane">
+              <Suspense fallback={<div className="viewer-3d viewer-loading">Loading 3D preview…</div>}>
+                <VehicleViewer3D
+                  color={form.color}
+                  model={form.model}
+                  wheelStyle={form.wheels}
+                />
+              </Suspense>
+              <p className="preview-hint">
+                Drag to rotate · shape is a stand-in, not the exact vehicle
+              </p>
+            </div>
+
           <form onSubmit={handleSubmit} className="vehicle-form">
             <div className="form-row">
               <div className="field">
@@ -229,6 +245,7 @@ export default function VehicleForm() {
               {submitting ? 'Saving…' : isEdit ? 'Save changes' : 'Add vehicle'}
             </button>
           </form>
+          </div>
         )}
       </div>
     </div>
