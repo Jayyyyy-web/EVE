@@ -2,6 +2,7 @@ export default function AuthLayout({ children }) {
   return (
     <div className="auth-shell">
       <div className="auth-hero">
+        <div className="hero-glow" />
         <svg className="route-line" viewBox="0 0 400 800" preserveAspectRatio="none">
           <path
             d="M -20 700 C 80 650, 60 500, 160 460 S 300 380, 260 250 S 380 100, 340 -20"
@@ -9,8 +10,8 @@ export default function AuthLayout({ children }) {
             stroke="#2a3346"
             strokeWidth="2"
           />
-          <circle cx="-20" cy="700" r="4" fill="#155eef" />
-          <circle cx="340" cy="-20" r="4" fill="#155eef" />
+          <circle cx="-20" cy="700" r="4" fill="#7c5cff" />
+          <circle cx="340" cy="-20" r="4" fill="#2fd9c7" />
         </svg>
         <div className="brand">EVE</div>
         <div className="hero-copy">
