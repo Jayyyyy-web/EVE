@@ -49,6 +49,7 @@ export default function VehicleDetail() {
                   color={vehicle.color}
                   model={vehicle.model}
                   wheelStyle={vehicle.wheels}
+                  modelUrl={vehicle.modelUrl}
                   height={440}
                 />
               </Suspense>

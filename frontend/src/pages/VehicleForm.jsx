@@ -31,6 +31,7 @@ const emptyForm = {
   suspension: SUSPENSION_OPTIONS[0],
   interior: 'standard',
   isPublic: false,
+  modelUrl: '',
   specs: {
     topSpeedKph: '',
     rangeKm: '',
@@ -65,6 +66,7 @@ export default function VehicleForm() {
           suspension: v.suspension || SUSPENSION_OPTIONS[0],
           interior: v.interior || 'standard',
           isPublic: Boolean(v.isPublic),
+          modelUrl: v.modelUrl || '',
           specs: {
             topSpeedKph: v.specs?.topSpeedKph ?? '',
             rangeKm: v.specs?.rangeKm ?? '',
@@ -136,7 +138,13 @@ export default function VehicleForm() {
               <Suspense
                 fallback={<div className="viewer-3d viewer-loading">Loading 3D preview…</div>}
               >
-                <VehicleViewer3D color={form.color} model={form.model} wheelStyle={form.wheels} height={440} />
+                <VehicleViewer3D
+                  color={form.color}
+                  model={form.model}
+                  wheelStyle={form.wheels}
+                  modelUrl={form.modelUrl}
+                  height={440}
+                />
               </Suspense>
               <p className="preview-hint">
                 Drag to rotate · shape is a stand-in, not the exact vehicle
@@ -290,6 +298,23 @@ export default function VehicleForm() {
                     />
                     Make this vehicle public
                   </label>
+
+                  <p className="section-label">3D model (optional)</p>
+                  <div className="field">
+                    <label htmlFor="modelUrl">Model file path</label>
+                    <input
+                      id="modelUrl"
+                      name="modelUrl"
+                      value={form.modelUrl}
+                      onChange={handleChange}
+                      placeholder="/models/your-car.glb"
+                    />
+                  </div>
+                  <p className="muted-line small">
+                    Drop a .glb file in <code>frontend/public/models/</code> and enter its
+                    path here (e.g. <code>/models/supra.glb</code>) to replace the generic
+                    shape with a real model. Leave blank to keep the procedural stand-in.
+                  </p>
                 </div>
               )}
 

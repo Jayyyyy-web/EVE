@@ -1,11 +1,12 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
-import CarModel from './CarModel';
+import VehicleModel from './VehicleModel';
 
 export default function VehicleViewer3D({
   color,
   model,
   wheelStyle,
+  modelUrl,
   height = 380,
   interactive = true,
 }) {
@@ -23,7 +24,7 @@ export default function VehicleViewer3D({
         <Environment preset="city" />
 
         <group position={[0, -0.4, 0]}>
-          <CarModel color={color} model={model} wheelStyle={wheelStyle} />
+          <VehicleModel modelUrl={modelUrl} color={color} model={model} wheelStyle={wheelStyle} />
         </group>
 
         <ContactShadows position={[0, -0.4, 0]} opacity={0.5} scale={10} blur={2.4} far={2} />
