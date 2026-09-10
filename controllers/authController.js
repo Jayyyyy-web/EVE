@@ -3,13 +3,17 @@ const User = require('../models/User');
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, username: user.username },
+    { id: user._id, username: user.username, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 };
 
 // @route POST /api/auth/register
+// Role is never taken from the request body — it's decided here, server-side,
+// so nobody can grant themselves admin by sending { "role": "admin" }.
+// The very first account ever created becomes admin; every account after
+// that is a regular user, permanently. There is no path to a second admin.
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -23,12 +27,15 @@ const register = async (req, res) => {
       return res.status(409).json({ message: 'User with that email or username already exists' });
     }
 
-    const user = await User.create({ username, email, password });
+    const adminExists = await User.exists({ role: 'admin' });
+    const role = adminExists ? 'user' : 'admin';
+
+    const user = await User.create({ username, email, password, role });
     const token = generateToken(user);
 
     res.status(201).json({
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, role: user.role },
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -53,7 +60,7 @@ const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, role: user.role },
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

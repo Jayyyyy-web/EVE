@@ -14,7 +14,9 @@ export default function Dashboard() {
 
       <div className="dash-body">
         <div className="dash-hero">
-          <p className="eyebrow">Signed in</p>
+          <p className="eyebrow">
+            Signed in{user?.role === 'admin' ? ' · Admin' : ''}
+          </p>
           <h1>Welcome back, {user?.username}.</h1>
           <p>
             This is your starting point. Wire up your vehicle data here and
@@ -32,8 +34,8 @@ export default function Dashboard() {
             <div className="label">Last activity</div>
           </div>
           <div className="dash-stat">
-            <div className="num">{user?.email}</div>
-            <div className="label">Account email</div>
+            <div className="num">{user?.username}</div>
+            <div className="label">Username</div>
           </div>
         </div>
       </div>
