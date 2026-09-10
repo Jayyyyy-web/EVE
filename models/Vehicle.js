@@ -6,6 +6,10 @@ const VehicleSchema = new mongoose.Schema(
     model: { type: String, required: true }, // e.g. "Sedan", "Coupe", "SUV"
     color: { type: String, default: '#ffffff' },
     wheels: { type: String, default: 'standard' },
+    tires: { type: String, default: 'stock' },
+    spoiler: { type: String, default: 'none' },
+    exhaust: { type: String, default: 'stock' },
+    suspension: { type: String, default: 'stock' },
     interior: { type: String, default: 'standard' },
     specs: {
       topSpeedKph: { type: Number, default: 0 },

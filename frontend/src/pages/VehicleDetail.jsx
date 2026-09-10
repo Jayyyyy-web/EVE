@@ -1,13 +1,12 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { getVehicle, deleteVehicle } from '../api/vehicles';
+import AppLayout from '../components/AppLayout';
 
 const VehicleViewer3D = lazy(() => import('../components/VehicleViewer3D'));
 
 export default function VehicleDetail() {
   const { id } = useParams();
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [error, setError] = useState('');
@@ -32,16 +31,7 @@ export default function VehicleDetail() {
   };
 
   return (
-    <div className="app-shell">
-      <div className="topbar">
-        <Link to="/dashboard" className="brand">
-          EVE
-        </Link>
-        <button className="logout-btn" onClick={logout}>
-          Log out
-        </button>
-      </div>
-
+    <AppLayout>
       <div className="dash-body form-page">
         <Link to="/vehicles" className="back-link">
           ← Back to vehicles
@@ -69,6 +59,7 @@ export default function VehicleDetail() {
               <h1>{vehicle.name}</h1>
               <p className="muted-line">{vehicle.model}</p>
 
+              <p className="section-label">Performance</p>
               <div className="dash-grid three">
                 <div className="dash-stat">
                   <div className="num">{vehicle.specs?.rangeKm ?? 0}</div>
@@ -86,9 +77,29 @@ export default function VehicleDetail() {
                   <div className="num">{vehicle.specs?.accel0to100 ?? 0}s</div>
                   <div className="label">0–100</div>
                 </div>
+              </div>
+
+              <p className="section-label">Build</p>
+              <div className="dash-grid three">
                 <div className="dash-stat">
                   <div className="num">{vehicle.wheels}</div>
                   <div className="label">Wheels</div>
+                </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.tires || 'stock'}</div>
+                  <div className="label">Tires</div>
+                </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.spoiler || 'none'}</div>
+                  <div className="label">Spoiler</div>
+                </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.exhaust || 'stock'}</div>
+                  <div className="label">Exhaust</div>
+                </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.suspension || 'stock'}</div>
+                  <div className="label">Suspension</div>
                 </div>
                 <div className="dash-stat">
                   <div className="num">{vehicle.interior}</div>
@@ -101,7 +112,7 @@ export default function VehicleDetail() {
                   className="primary-btn"
                   onClick={() => navigate(`/vehicles/${vehicle._id}/edit`)}
                 >
-                  Edit
+                  Edit in Configurator
                 </button>
                 <button className="text-btn danger" onClick={handleDelete} disabled={deleting}>
                   {deleting ? 'Deleting…' : 'Delete vehicle'}
@@ -111,6 +122,6 @@ export default function VehicleDetail() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

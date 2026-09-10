@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getVehicles } from '../api/vehicles';
+import AppLayout from '../components/AppLayout';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [vehicleCount, setVehicleCount] = useState(null);
   const [latest, setLatest] = useState(null);
 
@@ -24,14 +25,7 @@ export default function Dashboard() {
   }, [user.id]);
 
   return (
-    <div className="app-shell">
-      <div className="topbar">
-        <div className="brand">EVE</div>
-        <button className="logout-btn" onClick={logout}>
-          Log out
-        </button>
-      </div>
-
+    <AppLayout>
       <div className="dash-body">
         <div className="dash-hero">
           <p className="eyebrow">
@@ -56,6 +50,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

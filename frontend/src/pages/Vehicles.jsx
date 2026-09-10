@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getVehicles, deleteVehicle } from '../api/vehicles';
+import AppLayout from '../components/AppLayout';
 
 export default function Vehicles() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,16 +36,7 @@ export default function Vehicles() {
   };
 
   return (
-    <div className="app-shell">
-      <div className="topbar">
-        <Link to="/dashboard" className="brand">
-          EVE
-        </Link>
-        <button className="logout-btn" onClick={logout}>
-          Log out
-        </button>
-      </div>
-
+    <AppLayout>
       <div className="dash-body">
         <div className="page-header">
           <div>
@@ -117,6 +109,6 @@ export default function Vehicles() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
