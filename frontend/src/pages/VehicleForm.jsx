@@ -1,6 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
+import { uploadModelFile, importModelFromUrl } from '../api/uploads';
 import AppLayout from '../components/AppLayout';
 
 const VehicleViewer3D = lazy(() => import('../components/VehicleViewer3D'));
@@ -50,6 +51,10 @@ export default function VehicleForm() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [tab, setTab] = useState('customize');
+  const [urlInput, setUrlInput] = useState('');
+  const [modelBusy, setModelBusy] = useState(false);
+  const [modelProgress, setModelProgress] = useState(0);
+  const [modelError, setModelError] = useState('');
 
   useEffect(() => {
     if (!isEdit) return;
@@ -87,6 +92,54 @@ export default function VehicleForm() {
   const handleSpecChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, specs: { ...prev.specs, [name]: value } }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'glb' && ext !== 'gltf') {
+      setModelError('Only .glb or .gltf files are supported.');
+      return;
+    }
+    if (file.size > 60 * 1024 * 1024) {
+      setModelError('File is larger than the 60MB limit.');
+      return;
+    }
+
+    setModelError('');
+    setModelBusy(true);
+    setModelProgress(0);
+    try {
+      const url = await uploadModelFile(file, setModelProgress);
+      setForm((prev) => ({ ...prev, modelUrl: url }));
+    } catch (err) {
+      setModelError(err.response?.data?.message || 'Upload failed. Try again.');
+    } finally {
+      setModelBusy(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUrlImport = async () => {
+    if (!urlInput.trim()) return;
+    setModelError('');
+    setModelBusy(true);
+    try {
+      const url = await importModelFromUrl(urlInput.trim());
+      setForm((prev) => ({ ...prev, modelUrl: url }));
+      setUrlInput('');
+    } catch (err) {
+      setModelError(err.response?.data?.message || 'Import failed. Try again.');
+    } finally {
+      setModelBusy(false);
+    }
+  };
+
+  const clearModel = () => {
+    setForm((prev) => ({ ...prev, modelUrl: '' }));
+    setModelError('');
   };
 
   const handleSubmit = async (e) => {
@@ -300,21 +353,56 @@ export default function VehicleForm() {
                   </label>
 
                   <p className="section-label">3D model (optional)</p>
-                  <div className="field">
-                    <label htmlFor="modelUrl">Model file path</label>
-                    <input
-                      id="modelUrl"
-                      name="modelUrl"
-                      value={form.modelUrl}
-                      onChange={handleChange}
-                      placeholder="/models/your-car.glb"
-                    />
-                  </div>
-                  <p className="muted-line small">
-                    Drop a .glb file in <code>frontend/public/models/</code> and enter its
-                    path here (e.g. <code>/models/supra.glb</code>) to replace the generic
-                    shape with a real model. Leave blank to keep the procedural stand-in.
-                  </p>
+
+                  {modelError && <div className="error-banner">{modelError}</div>}
+
+                  {form.modelUrl ? (
+                    <div className="model-attached">
+                      <span>✓ Model attached</span>
+                      <button type="button" className="text-btn danger" onClick={clearModel}>
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <label className="upload-btn">
+                        {modelBusy ? `Uploading… ${modelProgress}%` : 'Upload .glb / .gltf file'}
+                        <input
+                          type="file"
+                          accept=".glb,.gltf"
+                          onChange={handleFileUpload}
+                          disabled={modelBusy}
+                          hidden
+                        />
+                      </label>
+
+                      <div className="or-divider">or paste a direct link</div>
+
+                      <div className="url-import-row">
+                        <input
+                          type="text"
+                          placeholder="https://... (direct file link or Google Drive share link)"
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          disabled={modelBusy}
+                        />
+                        <button
+                          type="button"
+                          className="text-btn"
+                          onClick={handleUrlImport}
+                          disabled={modelBusy || !urlInput.trim()}
+                        >
+                          Import
+                        </button>
+                      </div>
+                      <p className="muted-line small">
+                        Works for direct file links and Google Drive share links. Won't work
+                        for CGTrader download links directly, since those require being
+                        logged into your account — download it there first, then use the
+                        upload button above.
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
 

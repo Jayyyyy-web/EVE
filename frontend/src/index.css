@@ -987,6 +987,64 @@ input:focus-visible {
   color: #c7cede;
 }
 
+.upload-btn {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.upload-btn:hover {
+  border-color: var(--violet);
+  color: var(--text);
+}
+
+.or-divider {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 14px 0 10px;
+}
+
+.url-import-row {
+  display: flex;
+  gap: 8px;
+}
+
+.url-import-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.url-import-row .text-btn {
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.model-attached {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--teal);
+}
+
 .swatch-row {
   display: flex;
   gap: 10px;

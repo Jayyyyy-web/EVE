@@ -1,15 +1,20 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve uploaded model files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -19,6 +24,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // 404 handler
 app.use((req, res) => {
