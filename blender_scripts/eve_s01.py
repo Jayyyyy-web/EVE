@@ -14,17 +14,22 @@ PREFIX = "EVE_"
 
 def find_repo_root():
     candidates = []
+    env_root = os.environ.get("EVE_ROOT")
+    if env_root:
+        candidates.append(Path(env_root).resolve())
+    # Known local EVE project location on Windows. EVE_ROOT can override this.
+    candidates.append(Path.home() / "OneDrive" / "Desktop" / "EVE")
     if bpy.data.filepath:
         candidates.append(Path(bpy.data.filepath).resolve().parent)
     candidates.append(Path.cwd().resolve())
-    env_root = os.environ.get("EVE_ROOT")
-    if env_root:
-        candidates.insert(0, Path(env_root).resolve())
     for start in candidates:
         for p in [start, *start.parents]:
             if (p / "frontend").is_dir():
                 return p
-    return Path.cwd().resolve()
+    raise RuntimeError(
+        "EVE project root not found. Set the EVE_ROOT environment variable "
+        "to your EVE repository folder (for example C:/Users/Mckay/OneDrive/Desktop/EVE)."
+    )
 
 
 ROOT = find_repo_root()
