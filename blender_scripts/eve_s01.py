@@ -126,12 +126,12 @@ def cyl(name, loc, radius, depth, material, rotation=(0, 0, 0), col=COL_COMPONEN
 
 def wheel(side, axle, x, y):
     # Wheels are separate, swappable components.
-    w = cyl(f"Wheel_{axle}_{side}", (x, y, 0.43), 0.43, 0.28, RUBBER, rotation=(0, math.pi / 2), col=COL_WHEELS)
+    w = cyl(f"Wheel_{axle}_{side}", (x, y, 0.43), 0.43, 0.28, RUBBER, rotation=(0, math.pi / 2, 0), col=COL_WHEELS)
     w["component_type"] = "wheel"
     w["wheel_size_in"] = 20
     w["swap_slot"] = f"{axle}_{side}"
-    hub = cyl(f"WheelHub_{axle}_{side}", (x + (-0.15 if x < 0 else 0.15), y, 0.43), 0.24, 0.30, METAL, rotation=(0, math.pi / 2), col=COL_WHEELS)
-    brake = cyl(f"Brake_{axle}_{side}", (x + (-0.16 if x < 0 else 0.16), y, 0.43), 0.16, 0.31, BRAKE, rotation=(0, math.pi / 2), col=COL_WHEELS)
+    hub = cyl(f"WheelHub_{axle}_{side}", (x + (-0.15 if x < 0 else 0.15), y, 0.43), 0.24, 0.30, METAL, rotation=(0, math.pi / 2, 0), col=COL_WHEELS)
+    brake = cyl(f"Brake_{axle}_{side}", (x + (-0.16 if x < 0 else 0.16), y, 0.43), 0.16, 0.31, BRAKE, rotation=(0, math.pi / 2, 0), col=COL_WHEELS)
     return w, hub, brake
 
 
@@ -237,7 +237,7 @@ def export():
             selected.append(obj)
     if selected:
         bpy.context.view_layer.objects.active = selected[0]
-    bpy.ops.export_scene.gltf(filepath=str(out), export_format="GLB", use_selection=True, export_materials="EXPORT")
+    bpy.ops.export_scene.gltf(filepath=str(out), export_format="GLB", use_selection=True, export_materials="EXPORT", export_apply=True)
     print(f"EVE S-01 exported: {out}")
 
 
