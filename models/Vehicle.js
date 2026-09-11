@@ -11,6 +11,8 @@ const VehicleSchema = new mongoose.Schema(
     exhaust: { type: String, default: 'stock' },
     suspension: { type: String, default: 'stock' },
     interior: { type: String, default: 'standard' },
+    chassisWeightKg: { type: Number, default: 1400 }, // everything except the engine
+    engineId: { type: String, default: 'stock' }, // references an entry in the engines catalog
     specs: {
       topSpeedKph: { type: Number, default: 0 },
       rangeKm: { type: Number, default: 0 },

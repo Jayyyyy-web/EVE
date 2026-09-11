@@ -1,7 +1,9 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
 import { uploadModelFile, importModelFromUrl } from '../api/uploads';
+import { getEngines } from '../api/parts';
+import { projectPerformance } from '../utils/performance';
 import AppLayout from '../components/AppLayout';
 
 const VehicleViewer3D = lazy(() => import('../components/VehicleViewer3D'));
@@ -31,6 +33,8 @@ const emptyForm = {
   exhaust: EXHAUST_OPTIONS[0],
   suspension: SUSPENSION_OPTIONS[0],
   interior: 'standard',
+  chassisWeightKg: 1400,
+  engineId: 'stock',
   isPublic: false,
   modelUrl: '',
   specs: {
@@ -55,6 +59,31 @@ export default function VehicleForm() {
   const [modelBusy, setModelBusy] = useState(false);
   const [modelProgress, setModelProgress] = useState(0);
   const [modelError, setModelError] = useState('');
+  const [engines, setEngines] = useState([]);
+
+  useEffect(() => {
+    getEngines()
+      .then(setEngines)
+      .catch(() => setEngines([]));
+  }, []);
+
+  const selectedEngine = engines.find((e) => e.id === form.engineId) || null;
+  const projection = useMemo(
+    () => projectPerformance({ chassisWeightKg: Number(form.chassisWeightKg) || 0, engine: selectedEngine }),
+    [form.chassisWeightKg, selectedEngine]
+  );
+
+  // When a real engine swap is active, keep the persisted 0-100 spec in sync
+  // with the projection so it's saved consistently with what's shown.
+  useEffect(() => {
+    if (projection) {
+      setForm((prev) => ({
+        ...prev,
+        specs: { ...prev.specs, accel0to100: projection.accel0to100 },
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projection?.accel0to100]);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -70,6 +99,8 @@ export default function VehicleForm() {
           exhaust: v.exhaust || EXHAUST_OPTIONS[0],
           suspension: v.suspension || SUSPENSION_OPTIONS[0],
           interior: v.interior || 'standard',
+          chassisWeightKg: v.chassisWeightKg || 1400,
+          engineId: v.engineId || 'stock',
           isPublic: Boolean(v.isPublic),
           modelUrl: v.modelUrl || '',
           specs: {
@@ -408,11 +439,73 @@ export default function VehicleForm() {
 
               {tab === 'performance' && (
                 <div className="tab-panel">
-                  <p className="section-label">Specs</p>
+                  <p className="section-label">Engine swap</p>
+                  <div className="form-row">
+                    <div className="field">
+                      <label htmlFor="engineId">Engine</label>
+                      <select
+                        id="engineId"
+                        name="engineId"
+                        value={form.engineId}
+                        onChange={handleChange}
+                      >
+                        {engines.map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {e.name}
+                            {e.hp ? ` — ${e.hp}hp` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label htmlFor="chassisWeightKg">Chassis weight (kg, without engine)</label>
+                      <input
+                        id="chassisWeightKg"
+                        name="chassisWeightKg"
+                        type="number"
+                        min="0"
+                        value={form.chassisWeightKg}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  {projection ? (
+                    <div className="projection-box">
+                      <div>
+                        <span className="num">{projection.totalWeightKg}</span>
+                        <span className="label">Total weight (kg)</span>
+                      </div>
+                      <div>
+                        <span className="num">{projection.hp}</span>
+                        <span className="label">Horsepower</span>
+                      </div>
+                      <div>
+                        <span className="num">{projection.torqueNm}</span>
+                        <span className="label">Torque (Nm)</span>
+                      </div>
+                      <div>
+                        <span className="num">{projection.powerToWeight}</span>
+                        <span className="label">hp/kg</span>
+                      </div>
+                      <div>
+                        <span className="num">{projection.accel0to100}s</span>
+                        <span className="label">Est. 0–100</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="muted-line small">
+                      Pick an engine above to see a projected weight, power, and 0–100
+                      estimate. With "Stock" selected, specs below are fully manual.
+                    </p>
+                  )}
                   <p className="muted-line small">
-                    These are entered manually for now — automatic projection based on parts
-                    swaps is a planned feature, not built yet.
+                    Projections are a rough directional estimate from power-to-weight
+                    ratio — they don't account for traction, aerodynamics, or gearing, so
+                    treat them as "faster/slower," not dyno-accurate numbers.
                   </p>
+
+                  <p className="section-label">Specs</p>
                   <div className="form-row four">
                     <div className="field">
                       <label htmlFor="rangeKm">Range (km)</label>
@@ -448,7 +541,9 @@ export default function VehicleForm() {
                       />
                     </div>
                     <div className="field">
-                      <label htmlFor="accel0to100">0–100 (sec)</label>
+                      <label htmlFor="accel0to100">
+                        0–100 (sec){projection ? ' · auto' : ''}
+                      </label>
                       <input
                         id="accel0to100"
                         name="accel0to100"
@@ -457,6 +552,8 @@ export default function VehicleForm() {
                         step="0.1"
                         value={form.specs.accel0to100}
                         onChange={handleSpecChange}
+                        disabled={Boolean(projection)}
+                        title={projection ? 'Computed from the selected engine swap' : ''}
                       />
                     </div>
                   </div>
@@ -497,6 +594,22 @@ export default function VehicleForm() {
                     <span>Suspension</span>
                     <span>{form.suspension}</span>
                   </div>
+                  <div>
+                    <span>Engine</span>
+                    <span>{selectedEngine?.name || 'Stock'}</span>
+                  </div>
+                  {projection && (
+                    <>
+                      <div>
+                        <span>Weight</span>
+                        <span>{projection.totalWeightKg} kg</span>
+                      </div>
+                      <div>
+                        <span>Power</span>
+                        <span>{projection.hp} hp</span>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <span>Top speed</span>
                     <span>{form.specs.topSpeedKph || '—'} km/h</span>

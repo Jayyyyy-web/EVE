@@ -106,6 +106,14 @@ export default function VehicleDetail() {
                   <div className="num">{vehicle.interior}</div>
                   <div className="label">Interior</div>
                 </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.engineId === 'stock' ? 'Stock' : vehicle.engineId}</div>
+                  <div className="label">Engine</div>
+                </div>
+                <div className="dash-stat">
+                  <div className="num">{vehicle.chassisWeightKg || '—'}</div>
+                  <div className="label">Chassis weight (kg)</div>
+                </div>
               </div>
 
               <div className="card-actions detail-actions">

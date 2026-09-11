@@ -205,6 +205,12 @@ input:focus-visible {
   outline: none;
 }
 
+.field input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--surface-raised);
+}
+
 .submit-btn {
   width: 100%;
   padding: 13px;
@@ -1126,4 +1132,39 @@ input:focus-visible {
   font-weight: 600;
   text-align: right;
   max-width: 60%;
+}
+
+.projection-box {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+}
+
+@media (max-width: 700px) {
+  .projection-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.projection-box > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.projection-box .num {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--teal);
+}
+
+.projection-box .label {
+  font-size: 11px;
+  color: var(--text-muted);
 }
