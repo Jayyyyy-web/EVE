@@ -1,12 +1,18 @@
 import api, { API_ORIGIN } from './axios';
 
-// Turns the relative path the backend returns (e.g. "/uploads/models/x.glb")
-// into a full URL pointing at the backend, regardless of what origin the
-// frontend itself is served from.
+// Turns a model path into the correct full URL depending on where it's
+// actually hosted:
+// - "/uploads/..." -> user-uploaded files live on the BACKEND, so prefix
+//   with the backend's origin regardless of what origin the frontend runs on.
+// - "/assets/..." (or anything else relative) -> built-in models bundled
+//   with the frontend itself, served from the frontend's own origin, so
+//   leave the path as-is.
+// - Full "http..." URLs are already absolute and left untouched.
 export function toFullModelUrl(relativePath) {
   if (!relativePath) return '';
   if (relativePath.startsWith('http')) return relativePath;
-  return `${API_ORIGIN}${relativePath}`;
+  if (relativePath.startsWith('/uploads/')) return `${API_ORIGIN}${relativePath}`;
+  return relativePath;
 }
 
 export async function uploadModelFile(file, onProgress) {

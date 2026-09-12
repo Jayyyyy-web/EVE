@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
 import { uploadModelFile, importModelFromUrl } from '../api/uploads';
 import { getEngines } from '../api/parts';
+import { BUILTIN_MODELS } from '../data/builtinModels';
 import { projectPerformance } from '../utils/performance';
 import AppLayout from '../components/AppLayout';
 
@@ -396,6 +397,31 @@ export default function VehicleForm() {
                     </div>
                   ) : (
                     <>
+                      {BUILTIN_MODELS.length > 0 && (
+                        <>
+                          <div className="field">
+                            <label htmlFor="builtinModel">Choose from library</label>
+                            <select
+                              id="builtinModel"
+                              defaultValue=""
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setForm((prev) => ({ ...prev, modelUrl: e.target.value }));
+                                }
+                              }}
+                            >
+                              <option value="">— Select a built-in model —</option>
+                              {BUILTIN_MODELS.map((m) => (
+                                <option key={m.id} value={m.path}>
+                                  {m.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="or-divider">or bring your own</div>
+                        </>
+                      )}
+
                       <label className="upload-btn">
                         {modelBusy ? `Uploading… ${modelProgress}%` : 'Upload .glb / .gltf file'}
                         <input
