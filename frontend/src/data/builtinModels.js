@@ -6,6 +6,5 @@
 // backend under /uploads/models/ and are per-vehicle, per-user files).
 
 export const BUILTIN_MODELS = [
-  // Example, once a real file is in place:
-  // { id: 'supra_mk5', name: 'Supra MK5', path: '/assets/vehicles/supra_mk5.glb' },
+  { id: 'supra_mk5', name: 'Toyota Supra MK5', path: '/assets/vehicles/supra_mk5.glb' },
 ];
