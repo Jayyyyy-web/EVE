@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
-import { uploadModelFile, importModelFromUrl } from '../api/uploads';
 import { getEngines } from '../api/parts';
 import { BUILTIN_MODELS } from '../data/builtinModels';
 import ModelLibraryPicker from '../components/ModelLibraryPicker';
@@ -57,10 +56,6 @@ export default function VehicleForm() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [tab, setTab] = useState('customize');
-  const [urlInput, setUrlInput] = useState('');
-  const [modelBusy, setModelBusy] = useState(false);
-  const [modelProgress, setModelProgress] = useState(0);
-  const [modelError, setModelError] = useState('');
   const [engines, setEngines] = useState([]);
 
   useEffect(() => {
@@ -127,52 +122,8 @@ export default function VehicleForm() {
     setForm((prev) => ({ ...prev, specs: { ...prev.specs, [name]: value } }));
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'glb' && ext !== 'gltf') {
-      setModelError('Only .glb or .gltf files are supported.');
-      return;
-    }
-    if (file.size > 60 * 1024 * 1024) {
-      setModelError('File is larger than the 60MB limit.');
-      return;
-    }
-
-    setModelError('');
-    setModelBusy(true);
-    setModelProgress(0);
-    try {
-      const url = await uploadModelFile(file, setModelProgress);
-      setForm((prev) => ({ ...prev, modelUrl: url }));
-    } catch (err) {
-      setModelError(err.response?.data?.message || 'Upload failed. Try again.');
-    } finally {
-      setModelBusy(false);
-      e.target.value = '';
-    }
-  };
-
-  const handleUrlImport = async () => {
-    if (!urlInput.trim()) return;
-    setModelError('');
-    setModelBusy(true);
-    try {
-      const url = await importModelFromUrl(urlInput.trim());
-      setForm((prev) => ({ ...prev, modelUrl: url }));
-      setUrlInput('');
-    } catch (err) {
-      setModelError(err.response?.data?.message || 'Import failed. Try again.');
-    } finally {
-      setModelBusy(false);
-    }
-  };
-
   const clearModel = () => {
     setForm((prev) => ({ ...prev, modelUrl: '' }));
-    setModelError('');
   };
 
   const handleSubmit = async (e) => {
@@ -385,64 +336,31 @@ export default function VehicleForm() {
                     Make this vehicle public
                   </label>
 
-                  <p className="section-label">3D model (optional)</p>
-
-                  {modelError && <div className="error-banner">{modelError}</div>}
+                  <p className="section-label">3D model</p>
 
                   {form.modelUrl ? (
-                    <div className="model-attached">
-                      <span>✓ Model attached</span>
+                    <div className="model-selected-card">
+                      <div className="model-selected-icon">🚗</div>
+                      <div className="model-selected-info">
+                        <span className="model-selected-name">
+                          {BUILTIN_MODELS.find((m) => m.path === form.modelUrl)?.name ||
+                            'Custom model'}
+                        </span>
+                        <span className="muted-line small">From the model library</span>
+                      </div>
                       <button type="button" className="text-btn danger" onClick={clearModel}>
-                        Remove
+                        Change
                       </button>
                     </div>
                   ) : (
                     <>
-                      {BUILTIN_MODELS.length > 0 && (
-                        <>
-                          <p className="section-label">Model library</p>
-                          <ModelLibraryPicker
-                            onSelect={(path) => setForm((prev) => ({ ...prev, modelUrl: path }))}
-                          />
-                          <div className="or-divider">or bring your own</div>
-                        </>
-                      )}
-
-                      <label className="upload-btn">
-                        {modelBusy ? `Uploading… ${modelProgress}%` : 'Upload .glb / .gltf file'}
-                        <input
-                          type="file"
-                          accept=".glb,.gltf"
-                          onChange={handleFileUpload}
-                          disabled={modelBusy}
-                          hidden
-                        />
-                      </label>
-
-                      <div className="or-divider">or paste a direct link</div>
-
-                      <div className="url-import-row">
-                        <input
-                          type="text"
-                          placeholder="https://... (direct file link or Google Drive share link)"
-                          value={urlInput}
-                          onChange={(e) => setUrlInput(e.target.value)}
-                          disabled={modelBusy}
-                        />
-                        <button
-                          type="button"
-                          className="text-btn"
-                          onClick={handleUrlImport}
-                          disabled={modelBusy || !urlInput.trim()}
-                        >
-                          Import
-                        </button>
-                      </div>
+                      <ModelLibraryPicker
+                        onSelect={(path) => setForm((prev) => ({ ...prev, modelUrl: path }))}
+                      />
                       <p className="muted-line small">
-                        Works for direct file links and Google Drive share links. Won't work
-                        for CGTrader download links directly, since those require being
-                        logged into your account — download it there first, then use the
-                        upload button above.
+                        No model selected — the vehicle will use a generic procedural shape
+                        until one is picked. More cars are being added to the library over
+                        time.
                       </p>
                     </>
                   )}

@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
 import VehicleModel from './VehicleModel';
-import { toFullModelUrl } from '../api/uploads';
+import { toFullModelUrl } from '../api/models';
 
 export default function VehicleViewer3D({
   color,
