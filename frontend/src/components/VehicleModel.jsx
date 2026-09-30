@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import CarModel from './CarModel';
 import WheelSet from './WheelSet';
 import { WHEEL_HARDPOINTS, modelIdFromUrl } from '../data/wheelHardpoints';
+import { WHEEL_MODELS } from '../data/wheelModels';
 
 function GLTFCar({ url, color, wheelModelUrl }) {
   const { scene } = useGLTF(url);
@@ -16,32 +17,33 @@ function GLTFCar({ url, color, wheelModelUrl }) {
     return id ? WHEEL_HARDPOINTS[id] : null;
   }, [url]);
 
-  const swapWheels = Boolean(wheelModelUrl && hardpoints);
+  // Our built-in car bodies carry no wheel geometry of their own (wheels
+  // are a separate swappable catalog) — fall back to the first catalog
+  // wheel so a car with hardpoints never renders wheel-less.
+  const effectiveWheelUrl = wheelModelUrl || (hardpoints ? WHEEL_MODELS[0]?.path : null);
 
   // If a color is set, try to tint any material that looks like body paint.
   // This is a best-effort heuristic since real GLTF files vary wildly in
   // how they name/structure materials — some models won't respond to this.
-  // While here, also hide the stock wheel/brake meshes when a wheel swap
-  // is active, so the new wheel model doesn't render on top of the old one.
   useMemo(() => {
+    if (!color) return;
     cloned.traverse((child) => {
-      if (color && child.isMesh && child.material) {
+      if (child.isMesh && child.material) {
         const name = (child.material.name || '').toLowerCase();
         if (name.includes('body') || name.includes('paint') || name.includes('shell')) {
           child.material = child.material.clone();
           child.material.color.set(color);
         }
       }
-      if (swapWheels && hardpoints.hideNodePrefixes.some((p) => child.name?.startsWith(p))) {
-        child.visible = false;
-      }
     });
-  }, [cloned, color, swapWheels, hardpoints]);
+  }, [cloned, color]);
 
   return (
     <>
       <primitive object={cloned} />
-      {swapWheels && <WheelSet wheelUrl={wheelModelUrl} hardpoints={hardpoints} />}
+      {effectiveWheelUrl && hardpoints && (
+        <WheelSet wheelUrl={effectiveWheelUrl} hardpoints={hardpoints} />
+      )}
     </>
   );
 }

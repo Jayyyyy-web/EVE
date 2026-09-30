@@ -11,15 +11,17 @@
 // scale the swapped wheel to fit.
 
 export const WHEEL_HARDPOINTS = {
+  // Matches the hub positions baked into blender_scripts/generate_supra.py
+  // (HUB_X / HUB_Y / FRONT_Z / REAR_Z) — the procedural body has no wheel
+  // geometry of its own, so a wheel model always renders here.
   supra_mk5: {
     nativeRadius: 0.43,
-    stockWheelRadius: 0.329,
-    hideNodePrefixes: ['MKV.Wheel.', 'MKV.WheelBrake.'],
+    stockWheelRadius: 0.35,
     points: {
-      frontLeft: { x: 0.759, y: 0.3298, z: 1.3616, facing: 1 },
-      frontRight: { x: -0.759, y: 0.3298, z: 1.3616, facing: -1 },
-      rearLeft: { x: 0.7734, y: 0.3289, z: -1.227, facing: 1 },
-      rearRight: { x: -0.7734, y: 0.3289, z: -1.227, facing: -1 },
+      frontLeft: { x: 0.8, y: 0.35, z: 1.65, facing: 1 },
+      frontRight: { x: -0.8, y: 0.35, z: 1.65, facing: -1 },
+      rearLeft: { x: 0.82, y: 0.35, z: -1.3, facing: 1 },
+      rearRight: { x: -0.82, y: 0.35, z: -1.3, facing: -1 },
     },
   },
 };
