@@ -10,6 +10,7 @@ export default function VehicleViewer3D({
   model,
   wheelStyle,
   modelUrl,
+  wheelModelUrl,
   height = 380,
   interactive = true,
 }) {
@@ -53,7 +54,13 @@ export default function VehicleViewer3D({
         <Environment preset="night" environmentIntensity={0.4} />
 
         <group position={[0, -0.4, 0]}>
-          <VehicleModel modelUrl={fullModelUrl} color={color} model={model} wheelStyle={wheelStyle} />
+          <VehicleModel
+            modelUrl={fullModelUrl}
+            color={color}
+            model={model}
+            wheelStyle={wheelStyle}
+            wheelModelUrl={wheelModelUrl}
+          />
         </group>
 
         <ContactShadows position={[0, -0.4, 0]} opacity={0.75} scale={10} blur={2.4} far={2} />

@@ -570,6 +570,29 @@ input:focus-visible {
   cursor: not-allowed;
 }
 
+.wheel-picker-row {
+  flex-wrap: wrap;
+}
+
+.wheel-option {
+  background: var(--surface-2, #1a1d2a);
+  border: 1px solid var(--border, #2a2e3e);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text-muted);
+}
+
+.wheel-option:hover {
+  color: var(--text);
+  border-color: var(--accent, #7c5cff);
+}
+
+.wheel-option.selected {
+  color: var(--text);
+  border-color: var(--accent, #7c5cff);
+  background: rgba(124, 92, 255, 0.12);
+}
+
 /* ---------- Vehicle form ---------- */
 
 .vehicle-form {

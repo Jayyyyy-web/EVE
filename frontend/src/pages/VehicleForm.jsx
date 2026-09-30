@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
 import { getEngines } from '../api/parts';
 import { BUILTIN_MODELS } from '../data/builtinModels';
+import { WHEEL_MODELS } from '../data/wheelModels';
 import ModelLibraryPicker from '../components/ModelLibraryPicker';
 import { projectPerformance } from '../utils/performance';
 import AppLayout from '../components/AppLayout';
@@ -38,6 +39,7 @@ const emptyForm = {
   engineId: 'stock',
   isPublic: false,
   modelUrl: '',
+  wheelModelUrl: '',
   specs: {
     topSpeedKph: '',
     rangeKm: '',
@@ -100,6 +102,7 @@ export default function VehicleForm() {
           engineId: v.engineId || 'stock',
           isPublic: Boolean(v.isPublic),
           modelUrl: v.modelUrl || '',
+          wheelModelUrl: v.wheelModelUrl || '',
           specs: {
             topSpeedKph: v.specs?.topSpeedKph ?? '',
             rangeKm: v.specs?.rangeKm ?? '',
@@ -180,6 +183,7 @@ export default function VehicleForm() {
                   model={form.model}
                   wheelStyle={form.wheels}
                   modelUrl={form.modelUrl}
+                  wheelModelUrl={form.wheelModelUrl}
                   height={440}
                 />
               </Suspense>
@@ -281,6 +285,32 @@ export default function VehicleForm() {
                       </select>
                     </div>
                   </div>
+
+                  <p className="section-label">3D wheels</p>
+                  <div className="swatch-row wheel-picker-row">
+                    <button
+                      type="button"
+                      className={`text-btn wheel-option${!form.wheelModelUrl ? ' selected' : ''}`}
+                      onClick={() => setForm((prev) => ({ ...prev, wheelModelUrl: '' }))}
+                    >
+                      Default
+                    </button>
+                    {WHEEL_MODELS.map((w) => (
+                      <button
+                        type="button"
+                        key={w.id}
+                        className={`text-btn wheel-option${form.wheelModelUrl === w.path ? ' selected' : ''}`}
+                        onClick={() => setForm((prev) => ({ ...prev, wheelModelUrl: w.path }))}
+                        title={`${w.style} · ${w.finish}`}
+                      >
+                        {w.name}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="muted-line small">
+                    Swappable 3D wheel models — generated procedurally, fitted to each
+                    car's real wheel hardpoints where supported.
+                  </p>
 
                   <div className="form-row">
                     <div className="field">

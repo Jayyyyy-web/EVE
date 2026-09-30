@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import WheelSet from './WheelSet';
 
 // Body-type presets: rough proportions only, not real vehicle dimensions.
 // width/length/height are in arbitrary 3D units, tuned to look reasonable.
@@ -28,7 +29,7 @@ function Wheel({ x, z, radius }) {
   );
 }
 
-export default function CarModel({ color = '#7c5cff', model = 'sedan', wheelStyle = 'standard' }) {
+export default function CarModel({ color = '#7c5cff', model = 'sedan', wheelStyle = 'standard', wheelModelUrl = null }) {
   const preset = useMemo(() => resolvePreset(model), [model]);
   const { length, width, height, cabinHeight, cabinOffset, wheelR } = preset;
 
@@ -37,6 +38,22 @@ export default function CarModel({ color = '#7c5cff', model = 'sedan', wheelStyl
   const trackX = width / 2 + 0.02;
 
   const rimColor = wheelStyle?.toLowerCase().includes('chrome') ? '#dfe3e8' : '#3a3f4d';
+
+  // If a real wheel model is selected, use it in place of the primitive
+  // cylinder wheels, scaled to this body preset's wheel radius.
+  const genericHardpoints = useMemo(
+    () => ({
+      nativeRadius: 0.43,
+      stockWheelRadius: wheelR,
+      points: {
+        frontLeft: { x: trackX, y: wheelR, z: axleZ, facing: -1 },
+        frontRight: { x: -trackX, y: wheelR, z: axleZ, facing: 1 },
+        rearLeft: { x: trackX, y: wheelR, z: -axleZ, facing: -1 },
+        rearRight: { x: -trackX, y: wheelR, z: -axleZ, facing: 1 },
+      },
+    }),
+    [trackX, wheelR, axleZ]
+  );
 
   return (
     <group>
@@ -55,20 +72,26 @@ export default function CarModel({ color = '#7c5cff', model = 'sedan', wheelStyl
         <meshStandardMaterial color="#12151f" roughness={0.15} metalness={0.2} transparent opacity={0.85} />
       </mesh>
 
-      {/* Wheels */}
-      <Wheel x={-trackX} z={axleZ} radius={wheelR} />
-      <Wheel x={trackX} z={axleZ} radius={wheelR} />
-      <Wheel x={-trackX} z={-axleZ} radius={wheelR} />
-      <Wheel x={trackX} z={-axleZ} radius={wheelR} />
+      {wheelModelUrl ? (
+        <WheelSet wheelUrl={wheelModelUrl} hardpoints={genericHardpoints} />
+      ) : (
+        <>
+          {/* Wheels */}
+          <Wheel x={-trackX} z={axleZ} radius={wheelR} />
+          <Wheel x={trackX} z={axleZ} radius={wheelR} />
+          <Wheel x={-trackX} z={-axleZ} radius={wheelR} />
+          <Wheel x={trackX} z={-axleZ} radius={wheelR} />
 
-      {/* Rim accents (simple flat discs to hint at wheel style) */}
-      {[[-trackX, axleZ], [trackX, axleZ], [-trackX, -axleZ], [trackX, -axleZ]].map(
-        ([x, z], i) => (
-          <mesh key={i} position={[x, wheelR, z]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[wheelR * 0.55, wheelR * 0.55, 0.3, 16]} />
-            <meshStandardMaterial color={rimColor} roughness={0.3} metalness={0.8} />
-          </mesh>
-        )
+          {/* Rim accents (simple flat discs to hint at wheel style) */}
+          {[[-trackX, axleZ], [trackX, axleZ], [-trackX, -axleZ], [trackX, -axleZ]].map(
+            ([x, z], i) => (
+              <mesh key={i} position={[x, wheelR, z]} rotation={[0, 0, Math.PI / 2]}>
+                <cylinderGeometry args={[wheelR * 0.55, wheelR * 0.55, 0.3, 16]} />
+                <meshStandardMaterial color={rimColor} roughness={0.3} metalness={0.8} />
+              </mesh>
+            )
+          )}
+        </>
       )}
     </group>
   );
