@@ -11,6 +11,7 @@ export default function VehicleViewer3D({
   wheelStyle,
   modelUrl,
   wheelModelUrl,
+  catalogId,
   height = 380,
   interactive = true,
 }) {
@@ -60,6 +61,7 @@ export default function VehicleViewer3D({
             model={model}
             wheelStyle={wheelStyle}
             wheelModelUrl={wheelModelUrl}
+            catalogId={catalogId}
           />
         </group>
 

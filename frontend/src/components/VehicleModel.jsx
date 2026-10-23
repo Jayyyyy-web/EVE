@@ -4,6 +4,8 @@ import CarModel from './CarModel';
 import WheelSet from './WheelSet';
 import { WHEEL_HARDPOINTS, modelIdFromUrl } from '../data/wheelHardpoints';
 import { WHEEL_MODELS } from '../data/wheelModels';
+import ProceduralCar from './ProceduralCar';
+import { getCatalogCar } from '../data/vehicleCatalog';
 
 function GLTFCar({ url, color, wheelModelUrl }) {
   const { scene } = useGLTF(url);
@@ -50,7 +52,12 @@ function GLTFCar({ url, color, wheelModelUrl }) {
 
 // Wrapper that tries to load a real GLTF model if a URL is provided,
 // and falls back to the procedural generic shape otherwise (or on error).
-export default function VehicleModel({ modelUrl, color, model, wheelStyle, wheelModelUrl }) {
+export default function VehicleModel({ modelUrl, color, model, wheelStyle, wheelModelUrl, catalogId }) {
+  const catalogCar = getCatalogCar(catalogId);
+  if (catalogCar) {
+    return <ProceduralCar car={catalogCar} color={color} wheelModelUrl={wheelModelUrl} />;
+  }
+
   if (!modelUrl) {
     return <CarModel color={color} model={model} wheelStyle={wheelStyle} wheelModelUrl={wheelModelUrl} />;
   }

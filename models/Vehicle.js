@@ -20,6 +20,7 @@ const VehicleSchema = new mongoose.Schema(
       accel0to100: { type: Number, default: 0 }, // seconds
     },
     modelUrl: { type: String }, // path/URL to 3D model asset (.glb, .gltf, etc.)
+    catalogId: { type: String, default: '' }, // id from the frontend vehicle catalog; the 3D car is generated from it
     wheelModelUrl: { type: String, default: '' }, // path to a swappable wheel model from the built-in wheel catalog
     thumbnailUrl: { type: String },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

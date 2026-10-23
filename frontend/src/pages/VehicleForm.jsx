@@ -3,8 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getVehicle, createVehicle, updateVehicle } from '../api/vehicles';
 import { getEngines } from '../api/parts';
 import { BUILTIN_MODELS } from '../data/builtinModels';
+import { getCatalogCar, catalogLabel } from '../data/vehicleCatalog';
+import CatalogPicker from '../components/CatalogPicker';
 import { WHEEL_MODELS } from '../data/wheelModels';
-import ModelLibraryPicker from '../components/ModelLibraryPicker';
 import { projectPerformance } from '../utils/performance';
 import AppLayout from '../components/AppLayout';
 
@@ -39,6 +40,7 @@ const emptyForm = {
   engineId: 'stock',
   isPublic: false,
   modelUrl: '',
+  catalogId: '',
   wheelModelUrl: '',
   specs: {
     topSpeedKph: '',
@@ -102,6 +104,7 @@ export default function VehicleForm() {
           engineId: v.engineId || 'stock',
           isPublic: Boolean(v.isPublic),
           modelUrl: v.modelUrl || '',
+          catalogId: v.catalogId || '',
           wheelModelUrl: v.wheelModelUrl || '',
           specs: {
             topSpeedKph: v.specs?.topSpeedKph ?? '',
@@ -126,7 +129,23 @@ export default function VehicleForm() {
   };
 
   const clearModel = () => {
-    setForm((prev) => ({ ...prev, modelUrl: '' }));
+    setForm((prev) => ({ ...prev, modelUrl: '', catalogId: '' }));
+  };
+
+  // Picking a catalog car fills in name/type, weight and stock engine so the
+  // performance projection starts from that car's real numbers.
+  const pickCatalogCar = (car) => {
+    const stock = engines.find((e) => e.id === car.stockEngineId);
+    const engineWeight = stock?.weightKg ?? 150;
+    setForm((prev) => ({
+      ...prev,
+      catalogId: car.id,
+      modelUrl: '',
+      model: `${car.make} ${car.model}`,
+      name: prev.name || `My ${car.model}`,
+      chassisWeightKg: Math.max(600, car.curbKg - engineWeight),
+      engineId: stock ? stock.id : 'stock',
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -183,6 +202,7 @@ export default function VehicleForm() {
                   model={form.model}
                   wheelStyle={form.wheels}
                   modelUrl={form.modelUrl}
+                  catalogId={form.catalogId}
                   wheelModelUrl={form.wheelModelUrl}
                   height={440}
                 />
@@ -366,17 +386,18 @@ export default function VehicleForm() {
                     Make this vehicle public
                   </label>
 
-                  <p className="section-label">3D model</p>
+                  <p className="section-label">Vehicle</p>
 
-                  {form.modelUrl ? (
+                  {form.catalogId || form.modelUrl ? (
                     <div className="model-selected-card">
                       <div className="model-selected-icon">🚗</div>
                       <div className="model-selected-info">
                         <span className="model-selected-name">
-                          {BUILTIN_MODELS.find((m) => m.path === form.modelUrl)?.name ||
+                          {catalogLabel(getCatalogCar(form.catalogId)) ||
+                            BUILTIN_MODELS.find((m) => m.path === form.modelUrl)?.name ||
                             'Custom model'}
                         </span>
-                        <span className="muted-line small">From the model library</span>
+                        <span className="muted-line small">From the vehicle catalog</span>
                       </div>
                       <button type="button" className="text-btn danger" onClick={clearModel}>
                         Change
@@ -384,13 +405,10 @@ export default function VehicleForm() {
                     </div>
                   ) : (
                     <>
-                      <ModelLibraryPicker
-                        onSelect={(path) => setForm((prev) => ({ ...prev, modelUrl: path }))}
-                      />
+                      <CatalogPicker onSelect={pickCatalogCar} />
                       <p className="muted-line small">
-                        No model selected — the vehicle will use a generic procedural shape
-                        until one is picked. More cars are being added to the library over
-                        time.
+                        Pick your car to load its real dimensions, weight and stock engine.
+                        Without one, the preview uses a generic shape.
                       </p>
                     </>
                   )}

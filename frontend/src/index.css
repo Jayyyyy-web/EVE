@@ -1211,3 +1211,22 @@ input:focus-visible {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* ---------- Vehicle catalog picker ---------- */
+.make-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.chip {
+  background: var(--surface-2, #1a1d2a);
+  border: 1px solid var(--border, #2a2e3e);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.chip:hover { color: var(--text); }
+.chip.selected { color: var(--text); border-color: var(--accent, #7c5cff); background: rgba(124, 92, 255, 0.14); }
+.catalog-grid { max-height: 300px; overflow-y: auto; }
+.catalog-grid .library-card { align-items: flex-start; text-align: left; gap: 2px; }
+.catalog-make { font-size: 11.5px; color: var(--text-muted); }
+.catalog-model { font-weight: 600; font-size: 14px; }

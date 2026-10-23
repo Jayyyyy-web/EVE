@@ -51,6 +51,7 @@ export default function VehicleDetail() {
                   wheelStyle={vehicle.wheels}
                   modelUrl={vehicle.modelUrl}
                   wheelModelUrl={vehicle.wheelModelUrl}
+                  catalogId={vehicle.catalogId}
                   height={440}
                 />
               </Suspense>
